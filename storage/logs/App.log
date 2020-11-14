@@ -1,0 +1,3 @@
+2020/11/12 08:37:14 {"callers":["/home/minchi/golang/go-programming-tour-book/blog-service/main.go: 27 main.init.0"],"level":"info","message":"%s: go-programming-book/%seddycjyblog-service","time":1605141434211283500}
+2020/11/14 08:37:55 {"callers":["/home/minchi/golang/go-programming-tour-book/blog-service/main.go: 27 main.init.0"],"level":"info","message":"%s: go-programming-book/%seddycjyblog-service","time":1605314275241859700}
+2020/11/14 08:41:55 {"callers":["/home/minchi/golang/go-programming-tour-book/blog-service/main.go: 27 main.init.0"],"level":"info","message":"%s: go-programming-book/%seddycjyblog-service","time":1605314515638100500}
