@@ -30,6 +30,10 @@ func init() {
 	}
 }
 
+// @title 部落格系統
+// @version 1.0
+// @description Golang blog service practice
+// termsOfService https://github.com/KarasWinds/blog-service
 func main() {
 	gin.SetMode(global.ServerSetting.RunMode)
 	router := routers.NewRouter()
