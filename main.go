@@ -44,7 +44,7 @@ func main() {
 		WriteTimeout:   global.ServerSetting.WriteTimeout,
 		MaxHeaderBytes: 1 << 20,
 	}
-	global.Logger.Info("%s: go-programming-book/%s", "eddycjy", "blog-service")
+	global.Logger.Info("%s: programming/%s", "golang", "blog-service")
 	s.ListenAndServe()
 
 }

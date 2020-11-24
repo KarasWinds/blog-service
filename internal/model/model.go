@@ -12,10 +12,10 @@ import (
 
 type Model struct {
 	ID         uint32 `gorm:"primary_key" json:"id"`
-	CreateBy   string `json:"created_by"`
+	CreatedBy  string `json:"created_by"`
 	ModifiedBy string `json:"modifyied_by"`
 	CreatedOn  uint32 `json:"created_on"`
-	ModifyedOn uint32 `json:"modifyed_on"`
+	ModifiedOn uint32 `json:"modified_on"`
 	DeletedOn  uint32 `json:"deleted_on"`
 	IsDel      uint8  `json:"is_del"`
 }
@@ -47,12 +47,12 @@ func NewDBEngine(databaseSetting *setting.DatabaseSettingS) (*gorm.DB, error) {
 func updateTimeStampForCreateCallback(scope *gorm.Scope) {
 	if !scope.HasError() {
 		nowTime := time.Now().Unix()
-		if createTimeField, ok := scope.FieldByName("CreateOn"); ok {
+		if createTimeField, ok := scope.FieldByName("CreatedOn"); ok {
 			if createTimeField.IsBlank {
 				_ = createTimeField.Set(nowTime)
 			}
 		}
-		if modifyTimeField, ok := scope.FieldByName("ModifyedOn"); ok {
+		if modifyTimeField, ok := scope.FieldByName("ModifiedOn"); ok {
 			if modifyTimeField.IsBlank {
 				_ = modifyTimeField.Set(nowTime)
 			}
@@ -62,7 +62,7 @@ func updateTimeStampForCreateCallback(scope *gorm.Scope) {
 
 func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
 	if _, ok := scope.Get("gorm:update_column"); !ok {
-		_ = scope.SetColumn("ModifyedOn", time.Now().Unix())
+		_ = scope.SetColumn("ModifiedOn", time.Now().Unix())
 	}
 }
 

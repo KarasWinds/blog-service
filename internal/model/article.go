@@ -1,6 +1,8 @@
 package model
 
-import "github.com/KarasWinds/blog-service/pkg/app"
+import (
+	"github.com/KarasWinds/blog-service/pkg/app"
+)
 
 type Article struct {
 	*Model
