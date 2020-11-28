@@ -1,8 +1,12 @@
 package routers
 
 import (
+	"net/http"
+
 	_ "github.com/KarasWinds/blog-service/docs"
+	"github.com/KarasWinds/blog-service/global"
 	"github.com/KarasWinds/blog-service/internal/middleware"
+	"github.com/KarasWinds/blog-service/internal/routers/api"
 	v1 "github.com/KarasWinds/blog-service/internal/routers/api/v1"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -11,10 +15,18 @@ import (
 
 func NewRouter() *gin.Engine {
 	r := gin.New()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "pong"})
+	})
 	r.Use(gin.Logger(), gin.Recovery(), middleware.Translations())
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	articles := v1.NewArticle()
 	tag := v1.NewTag()
+
+	upload := api.NewUpload()
+	r.POST("/upload/file", upload.UploadFile)
+	r.StaticFS("/static", http.Dir(global.AppSetting.UploadSavePath))
+
 	apiv1 := r.Group("/api/v1")
 	{
 		apiv1.POST("/tags", tag.Create)
