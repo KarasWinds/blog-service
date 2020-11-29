@@ -44,9 +44,10 @@ func main() {
 		WriteTimeout:   global.ServerSetting.WriteTimeout,
 		MaxHeaderBytes: 1 << 20,
 	}
-	// global.Logger.Info("%s: programming/%s", "golang", "blog-service")
-	s.ListenAndServe()
-
+	err := s.ListenAndServe()
+	if err != nil {
+		log.Fatalf("s.ListenAndServe err: %v", err)
+	}
 }
 
 func setupSetting() error {
@@ -66,9 +67,14 @@ func setupSetting() error {
 	if err != nil {
 		return err
 	}
+	err = setting.ReadSection("JWT", &global.JWTSetting)
+	if err != nil {
+		return err
+	}
 
 	global.ServerSetting.ReadTimeout *= time.Second
 	global.ServerSetting.WriteTimeout *= time.Second
+	global.JWTSetting.Expire *= time.Second
 	return nil
 }
 

@@ -84,10 +84,11 @@ func (l *Logger) WithCaller(skip int) *Logger {
 		f := runtime.FuncForPC(pc)
 		ll.callers = []string{fmt.Sprintf("%s: %d %s", file, line, f.Name())}
 	}
+
 	return ll
 }
 
-func (l *Logger) WithCallerFrames() *Logger {
+func (l *Logger) WithCallersFrames() *Logger {
 	maxCallerDepth := 25
 	minCallerDepth := 1
 	callers := []string{}
@@ -95,7 +96,7 @@ func (l *Logger) WithCallerFrames() *Logger {
 	depth := runtime.Callers(minCallerDepth, pcs)
 	frames := runtime.CallersFrames(pcs[:depth])
 	for frame, more := frames.Next(); more; frame, more = frames.Next() {
-		s := fmt.Sprint("%s: %d %s", frame.File, frame.Line, frame.Function)
+		s := fmt.Sprintf("%s: %d %s", frame.File, frame.Line, frame.Function)
 		callers = append(callers, s)
 		if !more {
 			break
@@ -130,26 +131,26 @@ func (l *Logger) JSONFormat(level Level, message string) map[string]interface{} 
 			}
 		}
 	}
+
 	return data
 }
 
 func (l *Logger) Output(level Level, message string) {
 	body, _ := json.Marshal(l.JSONFormat(level, message))
-	context := string(body)
+	content := string(body)
 	switch level {
 	case LevelDebug:
-		l.newLogger.Print(context)
+		l.newLogger.Print(content)
 	case LevelInfo:
-		l.newLogger.Print(context)
+		l.newLogger.Print(content)
 	case LevelWarn:
-		l.newLogger.Print(context)
+		l.newLogger.Print(content)
 	case LevelError:
-		l.newLogger.Print(context)
+		l.newLogger.Print(content)
 	case LevelFatal:
-		l.newLogger.Print(context)
+		l.newLogger.Fatal(content)
 	case LevelPanic:
-		l.newLogger.Print(context)
-
+		l.newLogger.Panic(content)
 	}
 }
 

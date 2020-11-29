@@ -27,3 +27,16 @@ Database:
   ParseTime: True
   MaxIdleConns: 10
   MaxOpenConns: 30
+JWT:
+  Secret: minchi
+  Issuer: blog-service
+  Expire: 7200
+Email:
+  Host:
+  Port:
+  UserName:
+  Password:
+  IsSSL:
+  From:
+  To:
+    -
