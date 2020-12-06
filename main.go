@@ -1,8 +1,14 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -16,8 +22,19 @@ import (
 	"github.com/KarasWinds/blog-service/pkg/tracer"
 )
 
+var (
+	port      string
+	runMode   string
+	config    string
+	isVersion bool
+)
+
 func init() {
-	err := setupSetting()
+	err := setupFlag()
+	if err != nil {
+		log.Fatalf("init.setupFlag err: %v", err)
+	}
+	err = setupSetting()
 	if err != nil {
 		log.Fatalf("init.setupSetting err: %v", err)
 	}
@@ -49,14 +66,42 @@ func main() {
 		WriteTimeout:   global.ServerSetting.WriteTimeout,
 		MaxHeaderBytes: 1 << 20,
 	}
-	err := s.ListenAndServe()
-	if err != nil {
-		log.Fatalf("s.ListenAndServe err: %v", err)
+	go func() {
+		err := s.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			log.Fatalf("s.ListenAndServe err: %v", err)
+		}
+	}()
+
+	// 等待中斷訊號
+	quit := make(chan os.Signal)
+	// 接收 syscall.SIGINT 和 syscall.SIGTERM 訊號
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shuting down server...")
+
+	// 最大時間控制，用於通知該服務端它有5秒時間來處理原有的請求
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := s.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to shutdown:", err)
 	}
+
+	log.Println("Server exiting")
+}
+
+func setupFlag() error {
+	flag.StringVar(&port, "port", "", "啟動通訊埠")
+	flag.StringVar(&runMode, "mode", "", "啟動模式")
+	flag.StringVar(&config, "config", "configs/", "指定要使用的設定檔路徑")
+	flag.BoolVar(&isVersion, "version", false, "編譯資訊")
+	flag.Parse()
+
+	return nil
 }
 
 func setupSetting() error {
-	setting, err := setting.NewSetting()
+	setting, err := setting.NewSetting(strings.Split(config, ",")...)
 	if err != nil {
 		return err
 	}
@@ -85,6 +130,12 @@ func setupSetting() error {
 	global.ServerSetting.WriteTimeout *= time.Second
 	global.JWTSetting.Expire *= time.Second
 	global.AppSetting.DefaultContextTimeout *= time.Second
+	if port != "" {
+		global.ServerSetting.HttpPort = port
+	}
+	if runMode != "" {
+		global.ServerSetting.RunMode = runMode
+	}
 	return nil
 }
 
